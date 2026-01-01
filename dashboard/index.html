@@ -7,56 +7,87 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Palette neutre */
+        .bg-primary, .bg-info, .bg-secondary {
+            background-color: #e9ecef !important;
+            color: #212529 !important;
+        }
+        .badge.bg-primary, .badge.bg-info, .badge.bg-secondary {
+            background-color: #e0e0e0 !important;
+            color: #212529 !important;
+        }
+        .btn-primary, .btn-info, .btn-secondary {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: #ffffff !important;
+        }
+        .card-header.text-white {
+            color: #212529 !important;
+        }
+        /* Sidebar simplifiée */
         .sidebar {
             min-height: 100vh;
-            background-color: #2c3e50;
+            background-color: #f8f9fa;
             padding-top: 20px;
+            border-right: 1px solid #dee2e6;
         }
         .sidebar .nav-link {
-            color: #ecf0f1;
+            color: #212529;
             padding: 12px 20px;
             margin: 5px 0;
-            border-radius: 5px;
-            transition: all 0.3s;
+            border-radius: 2px;
+            transition: background-color 0.15s ease;
         }
         .sidebar .nav-link:hover {
-            background-color: #34495e;
-            color: #fff;
+            background-color: #e9ecef;
+            color: #212529;
         }
         .sidebar .nav-link.active {
-            background-color: #3498db;
-            color: #fff;
+            background-color: #e9ecef;
+            color: #212529;
+            font-weight: 600;
         }
+
         .main-content {
             padding: 20px;
+            background-color: #ffffff;
         }
-        .page-section {
-            display: none;
-        }
-        .page-section.active {
-            display: block;
-        }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
         .api-test-card {
             margin-bottom: 20px;
             border: 1px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 2px;
         }
+
+        /* Unifier la couleur des endpoints (header + bouton) */
+        .api-test-card .card-header {
+            background-color: #6c757d !important;
+            color: #ffffff !important;
+        }
+        .api-test-card .card-header .badge {
+            display: none; /* retire la mention "Required Role" pour alléger */
+        }
+        .api-test-card .btn {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: #ffffff !important;
+        }
+
+        /* Response Body: noir fond, texte blanc */
         .api-response {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 4px;
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 2px;
             padding: 15px;
-            margin-top: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            max-height: 400px;
-            overflow-y: auto;
-            color: #d4d4d4;
-            min-height: 100px;
+            color: #ffffff;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+            font-size: 14px;
         }
         .api-response pre {
             margin: 0;
-            color: #d4d4d4;
+            color: #ffffff;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
@@ -204,145 +235,96 @@
                     </div>
 
                     <!-- API Tester Page (Page 1) -->
-                    <div id="api-tester" class="page-section active">
-                        <h2><i class="fas fa-vial"></i> Page 1 — API Tester</h2>
-                        <p class="text-muted">Test different API endpoints to see how RBAC controls access based on user roles and permissions. Each endpoint can return 200 OK (valid token + correct role), 401 Unauthorized (no/invalid token), or 403 Forbidden (valid token but insufficient role).</p>
-                        
-                        <div class="row">
-                            <!-- Endpoint 1: Public -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card api-test-card h-100">
-                                    <div class="card-header bg-success text-white">
-                                        <h5 class="mb-1"><i class="fas fa-globe"></i> Endpoint 1: Public Access</h5>
-                                        <div class="mt-2">
-                                            <span class="badge bg-light text-dark">Required Role: None (Public)</span>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="text-muted mb-3"><strong>Description:</strong> This is a public endpoint that requires no authentication. Anyone can access this endpoint without a token.</p>
-                                        <button class="btn btn-success w-100" onclick="callAPI('public')">
-                                            <i class="fas fa-play"></i> Call Endpoint
-                                        </button>
-                                        <div id="response-public" class="api-response mt-3"></div>
-                                    </div>
-                                </div>
-                            </div>
+                   <!-- API Tester Page -->
+<div id="api-tester" class="page-section active">
+    <h2 class="page-title">Page 1 — API Tester</h2>
 
-                            <!-- Endpoint 2: User Basic -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card api-test-card h-100">
-                                    <div class="card-header bg-info text-white">
-                                        <h5 class="mb-1"><i class="fas fa-user"></i> Endpoint 2: Authenticated User</h5>
-                                        <div class="mt-2">
-                                            <span class="badge bg-light text-dark">Required Role: Any Authenticated User</span>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint requires a valid authentication token. Any logged-in user can access this endpoint regardless of their role.</p>
-                                        <button class="btn btn-info w-100" onclick="callAPI('user_basic')">
-                                            <i class="fas fa-play"></i> Call Endpoint
-                                        </button>
-                                        <div id="response-user_basic" class="api-response mt-3"></div>
-                                    </div>
-                                </div>
-                            </div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card api-test-card">
+                <div class="card-header">
+                    Endpoint 1: Public Access
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-endpoint" onclick="callAPI('public')">► Send Request</button>
+                    <div id="response-public" class="api-response"></div>
+                </div>
+            </div>
+        </div>
 
-                            <!-- Endpoint 3: Admin Only -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card api-test-card h-100">
-                                    <div class="card-header bg-danger text-white">
-                                        <h5 class="mb-1"><i class="fas fa-user-shield"></i> Endpoint 3: Admin Only</h5>
-                                        <div class="mt-2">
-                                            <span class="badge bg-light text-dark">Required Role: admin</span>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint is restricted to users with the admin role only. Other roles will receive a 403 Forbidden response.</p>
-                                        <button class="btn btn-danger w-100" onclick="callAPI('admin_only')">
-                                            <i class="fas fa-play"></i> Call Endpoint
-                                        </button>
-                                        <div id="response-admin_only" class="api-response mt-3"></div>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="col-md-6">
+            <div class="card api-test-card">
+                <div class="card-header">
+                    Endpoint 2: Authenticated User
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-endpoint" onclick="callAPI('user_basic')">► Send Request</button>
+                    <div id="response-user_basic" class="api-response"></div>
+                </div>
+            </div>
+        </div>
 
-                            <!-- Endpoint 4: Clinician Only -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card api-test-card h-100">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-1"><i class="fas fa-user-md"></i> Endpoint 4: Clinician Only</h5>
-                                        <div class="mt-2">
-                                            <span class="badge bg-light text-dark">Required Role: clinician</span>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint is restricted to users with the clinician role. Admin role also has access. Other roles will receive 403 Forbidden.</p>
-                                        <button class="btn btn-primary w-100" onclick="callAPI('clinician_only')">
-                                            <i class="fas fa-play"></i> Call Endpoint
-                                        </button>
-                                        <div id="response-clinician_only" class="api-response mt-3"></div>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="col-md-6">
+            <div class="card api-test-card">
+                <div class="card-header">
+                    Endpoint 3: Admin Only
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-endpoint" onclick="callAPI('admin_only')">► Send Request</button>
+                    <div id="response-admin_only" class="api-response"></div>
+                </div>
+            </div>
+        </div>
 
-                            <!-- Endpoint 5: Receptionist Only -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card api-test-card h-100">
-                                    <div class="card-header bg-warning text-dark">
-                                        <h5 class="mb-1"><i class="fas fa-clipboard-list"></i> Endpoint 5: Receptionist Only</h5>
-                                        <div class="mt-2">
-                                            <span class="badge bg-dark text-white">Required Role: receptionist</span>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint is restricted to users with the receptionist role. Admin role also has access. Other roles will receive 403 Forbidden.</p>
-                                        <button class="btn btn-warning w-100" onclick="callAPI('receptionist_only')">
-                                            <i class="fas fa-play"></i> Call Endpoint
-                                        </button>
-                                        <div id="response-receptionist_only" class="api-response mt-3"></div>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="col-md-6">
+            <div class="card api-test-card">
+                <div class="card-header">
+                    Endpoint 4: Clinician Only
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-endpoint" onclick="callAPI('clinician_only')">► Send Request</button>
+                    <div id="response-clinician_only" class="api-response"></div>
+                </div>
+            </div>
+        </div>
 
-                            <!-- Endpoint 6: Nurse Only -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card api-test-card h-100">
-                                    <div class="card-header bg-secondary text-white">
-                                        <h5 class="mb-1"><i class="fas fa-user-nurse"></i> Endpoint 6: Nurse Only</h5>
-                                        <div class="mt-2">
-                                            <span class="badge bg-light text-dark">Required Role: nurse</span>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint is restricted to users with the nurse role. Admin role also has access. Other roles will receive 403 Forbidden.</p>
-                                        <button class="btn btn-secondary w-100" onclick="callAPI('nurse_only')">
-                                            <i class="fas fa-play"></i> Call Endpoint
-                                        </button>
-                                        <div id="response-nurse_only" class="api-response mt-3"></div>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="col-md-6">
+            <div class="card api-test-card">
+                <div class="card-header">
+                    Endpoint 5: Receptionist Only
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-endpoint" onclick="callAPI('receptionist_only')">► Send Request</button>
+                    <div id="response-receptionist_only" class="api-response"></div>
+                </div>
+            </div>
+        </div>
 
-                            <!-- Endpoint 7: Multi-Role -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card api-test-card h-100">
-                                    <div class="card-header bg-dark text-white">
-                                        <h5 class="mb-1"><i class="fas fa-users-medical"></i> Endpoint 7: Multi-Role Access</h5>
-                                        <div class="mt-2">
-                                            <span class="badge bg-light text-dark">Required Role: admin, clinician, or nurse</span>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint allows access to multiple roles: admin, clinician, or nurse. Users with other roles will receive 403 Forbidden.</p>
-                                        <button class="btn btn-dark w-100" onclick="callAPI('multi_role')">
-                                            <i class="fas fa-play"></i> Call Endpoint
-                                        </button>
-                                        <div id="response-multi_role" class="api-response mt-3"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="col-md-6">
+            <div class="card api-test-card">
+                <div class="card-header">
+                    Endpoint 6: Nurse Only
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-endpoint" onclick="callAPI('nurse_only')">► Send Request</button>
+                    <div id="response-nurse_only" class="api-response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card api-test-card">
+                <div class="card-header">
+                    Endpoint 7: Multi-Role Access
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-endpoint" onclick="callAPI('multi_role')">► Send Request</button>
+                    <div id="response-multi_role" class="api-response"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
                     <!-- Roles Page (Page 2) -->
                     <div id="roles" class="page-section">
@@ -443,3 +425,333 @@
     <script src="dashboard.js"></script>
 </body>
 </html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital RBAC Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Palette neutre */
+        .bg-primary, .bg-info, .bg-secondary {
+            background-color: #e9ecef !important;
+            color: #212529 !important;
+        }
+        .badge.bg-primary, .badge.bg-info, .badge.bg-secondary {
+            background-color: #e0e0e0 !important;
+            color: #212529 !important;
+        }
+        .btn-primary, .btn-info, .btn-secondary {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: #ffffff !important;
+        }
+        .card-header.text-white {
+            color: #212529 !important;
+        }
+        /* Sidebar simplifiée */
+        .sidebar {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            border-right: 1px solid #dee2e6;
+        }
+        .sidebar .nav-link {
+            color: #212529;
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 2px;
+            transition: background-color 0.15s ease;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #e9ecef;
+            color: #212529;
+        }
+        .sidebar .nav-link.active {
+            background-color: #e9ecef;
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .main-content {
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
+        .api-test-card {
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 2px;
+        }
+
+        /* Unifier la couleur des endpoints (header + bouton) */
+        .api-test-card .card-header {
+            background-color: #6c757d !important;
+            color: #ffffff !important;
+        }
+        .api-test-card .card-header .badge {
+            display: none; /* retire la mention "Required Role" pour alléger */
+        }
+        .api-test-card .btn {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: #ffffff !important;
+        }
+
+        /* Response Body: noir fond, texte blanc */
+        .api-response {
+            background-color: #000000;
+            border: 1px solid #333333;
+            border-radius: 2px;
+            padding: 15px;
+            color: #ffffff;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+            font-size: 14px;
+        }
+        .api-response pre {
+            margin: 0;
+            color: #ffffff;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .api-response .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .api-response .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        .status-200 { 
+            background-color: #28a745; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .status-401 { 
+            background-color: #dc3545; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .status-403 { 
+            background-color: #fd7e14; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .status-404 { 
+            background-color: #6c757d; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .status-500 { 
+            background-color: #dc3545; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .user-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .form-switch {
+            margin-bottom: 10px;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+        }
+        .login-card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital RBAC Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Palette neutre */
+        .bg-primary, .bg-info, .bg-secondary {
+            background-color: #e9ecef !important;
+            color: #212529 !important;
+        }
+        .badge.bg-primary, .badge.bg-info, .badge.bg-secondary {
+            background-color: #e0e0e0 !important;
+            color: #212529 !important;
+        }
+        .btn-primary, .btn-info, .btn-secondary {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: #ffffff !important;
+        }
+        .card-header.text-white {
+            color: #212529 !important;
+        }
+        /* Sidebar simplifiée */
+        .sidebar {
+            min-height: 100vh;
+            background-color: #3a4a5c;
+            padding-top: 20px;
+            border-right: 1px solid #2f3c48;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .sidebar .nav-link {
+            color: #ffffff;
+            padding: 12px 18px;
+            margin: 6px 0;
+            border-radius: 6px;
+            transition: background-color 0.15s ease;
+        }
+        .sidebar .nav-link i {
+            color: #ffffff;
+            margin-right: 8px;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #334455;
+            color: #ffffff;
+        }
+        .sidebar .nav-link.active {
+            background-color: #2f3c48;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Carte d’info utilisateur */
+        .user-info {
+            background-color: #e3f2fd;
+            border: 1px solid #d5e7fb;
+            border-radius: 8px;
+            padding: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        /* Titre de page */
+        .main-content {
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        .page-title {
+            font-family: "Segoe UI", Arial, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            font-weight: 600;
+            color: #111111;
+            margin: 8px 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #000000;
+        }
+
+        /* Grille endpoints 2×2 strict avec `gap: 20px`, conteneur centré et limité, et cartes visibles/claires avec hauteur uniforme. Aucun margin/padding externe sur les cadres; l’espacement est géré uniquement par le `gap`. Le contenu défile à l’intérieur du cadre pour conserver la même hauteur, même si le contenu varie. */
+        #api-tester {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        /* Grille endpoints 2×2 stricte avec gap: 10px (1 colonne en mobile) */
+        #api-tester .row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            grid-auto-rows: minmax(180px, auto);
+            align-items: stretch;
+        }
+        /* Supprime l’enveloppe bootstrap pour que la carte soit l’item de grille */
+        #api-tester .row > [class*="col-"] {
+            display: contents;        /* la .card devient l’élément du grid */
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        @media (max-width: 768px) {
+            #api-tester .row { grid-template-columns: 1fr; }
+        }
+
+        /* Cartes visibles, claires, et uniformes (remplissent la cellule de grille) */
+        .api-test-card {
+            height: 100%;             /* remplis la cellule (300px) */
+            box-sizing: border-box;
+            background: #ffffff;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;         /* le scroll se fait dans .card-body */
+        }
+        .api-test-card .card-header {
+            background-color: #f8f9fa;
+            color: #111111;
+            padding: 12px 14px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        .api-test-card .card-body {
+            flex: 1;                  /* occupe la hauteur restante */
+            overflow-y: auto;         /* contenu scrollable si dépasse */
+            background-color: #ffffff;
+            color: #111111;
+            padding: 12px 14px;       /* padding interne pour la clarté */
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Bouton "Send Request" (plein largeur, contraste) */
+        .btn-endpoint {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 40px;
+            background-color: #000000 !important;
+            border-color: #000000 !important;
+            color: #ffffff !important;
+            font-weight: 700;
+            border-radius: 6px;
+        }
+        .btn-endpoint:hover {
+            background-color: #1a1a1a !important;
+            border-color: #1a1a1a !important;
+        }
+
+        /* Zone de réponse sombre (s'adapte au contenu) */
+        .api-response {
+            background-color: #1e1e1e;
+            color: #e5e7eb;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 8px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+            font-size: 14px;
+            min-height: 60px;        /* hauteur minimum */
+        }
+        .api-response pre {
+            margin: 0;
+            color: #e5e7eb;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Badges de statut (si utilisés par le JS) */
+        .status-200 { background-color: #28a745 !important; color: #ffffff !important; font-weight: 700; }
+        .status-401, .status-403 { background-color: #dc3545 !important; color: #ffffff !important; font-weight: 700; }
+        .status-404, .status-500 { background-color: #6c757d !important; color: #ffffff !important; font-weight: 700; }
+    </style>
+</head>

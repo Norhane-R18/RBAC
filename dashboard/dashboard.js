@@ -67,11 +67,6 @@ $(document).ready(function() {
         loadPageData(page);
     });
 
-    // Logout
-    $('#logoutBtn').on('click', function(e) {
-        e.preventDefault();
-        logout();
-    });
 });
 
 // Login function
@@ -178,71 +173,6 @@ function loadPageData(page) {
     }
 }
 
-// Test 401 error function
-function test401Error() {
-    // Clear the token temporarily
-    const originalToken = authToken;
-    authToken = null;
-    
-    // Try to make an API call without token
-    $.ajax({
-        url: '../api/appointments.php',
-        method: 'GET',
-        headers: {}, // No Authorization header
-        success: function(response) {
-            // Restore token
-            authToken = originalToken;
-            showError('Unexpected: Request succeeded without token');
-        },
-        error: function(xhr) {
-            // Restore token
-            authToken = originalToken;
-            
-            if (xhr.status === 401) {
-                showAuthError('Test successful: 401 Unauthorized triggered!');
-            } else {
-                showError('Test failed: Got ' + xhr.status + ' instead of 401');
-            }
-        }
-    });
-}
-
-// Test 403 error function  
-function test403Error() {
-    // Login as patient first, then try admin endpoint
-    $.ajax({
-        url: '../api/login.php',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            email: 'jpatient@email.com',
-            password: 'password123'
-        }),
-        success: function(loginData) {
-            // Now try to access admin endpoint with patient token
-            $.ajax({
-                url: '../api/roles.php',
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + loginData.token
-                },
-                success: function(response) {
-                    showPermissionError('Test failed: Patient accessed admin endpoint!');
-                },
-                error: function(xhr) {
-                    if (xhr.status === 403) {
-                        showPermissionError('Test successful: 403 Forbidden triggered!');
-                    } else {
-                        showError('Test failed: Got ' + xhr.status + ' instead of 403');
-                    }
-                }
-            });
-        },
-        error: function(xhr) {
-            showError('Failed to login as patient for 403 test');
-        }
-    });
-}
 
 // API Test Functions
 function callAPI(endpoint) {
@@ -848,6 +778,8 @@ function saveOriginalUserChanges() {
 }
 
 // Edit role (show modal)
+// CRUD functions removed for evaluation mode - only viewing/listing is required
+/*
 function editRole(roleId) {
     // Load role details
     $.ajax({
@@ -1087,24 +1019,15 @@ function toggleAllGroupPermissions() {
 
 // Update save function to handle different edit types
 function saveUserChanges() {
+    // CRUD functions removed - only user assignment toggles are used
+    // This function now only handles user changes (roles/permissions/groups assignment)
     const editType = $('#userEditModal').data('editType');
     
-    if (editType === 'role') {
-        saveRoleChanges();
-    } else if (editType === 'permission') {
-        savePermissionChanges();
-    } else if (editType === 'group') {
-        saveGroupChanges();
-    } else if (editType === 'newRole') {
-        saveNewRole();
-    } else if (editType === 'newPermission') {
-        saveNewPermission();
-    } else if (editType === 'newGroup') {
-        saveNewGroup();
-    } else {
-        // Original user saving logic
+    if (!editType || editType === 'user') {
+        // Original user saving logic (for user role/permission/group assignments)
         saveOriginalUserChanges();
     }
+    // All CRUD operations (role/permission/group edit/create/delete) are disabled
 }
 
 function saveRoleChanges() {
@@ -1488,6 +1411,7 @@ function deleteGroup(groupId) {
         });
     }
 }
+*/
 
 // Error handling functions
 function showAuthError(message) {

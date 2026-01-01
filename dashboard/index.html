@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital RBAC Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #2c3e50;
+            padding-top: 20px;
+        }
+        .sidebar .nav-link {
+            color: #ecf0f1;
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #34495e;
+            color: #fff;
+        }
+        .sidebar .nav-link.active {
+            background-color: #3498db;
+            color: #fff;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+        .api-test-card {
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        .api-response {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #d4d4d4;
+            min-height: 100px;
+        }
+        .api-response pre {
+            margin: 0;
+            color: #d4d4d4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .api-response .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .api-response .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        .status-200 { 
+            background-color: #28a745; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .status-401 { 
+            background-color: #dc3545; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .status-403 { 
+            background-color: #fd7e14; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .status-404 { 
+            background-color: #6c757d; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .status-500 { 
+            background-color: #dc3545; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .user-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .form-switch {
+            margin-bottom: 10px;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+        }
+        .login-card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="page-section active">
+        <div class="container">
+            <div class="login-container">
+                <div class="card login-card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-hospital"></i> Hospital RBAC Dashboard</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </button>
+                        </form>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                Demo accounts:<br>
+                                Admin: admin@hospital.com<br>
+                                Clinician: drsmith@hospital.com<br>
+                                Nurse: nwilson@hospital.com<br>
+                                Receptionist: rbrown@hospital.com<br>
+                                Patient: jpatient@email.com<br>
+                                (Password: password123)
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboardPage" class="page-section">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-2 sidebar">
+                    <nav class="nav flex-column">
+                        <a class="nav-link active" href="#" data-page="api-tester">
+                            <i class="fas fa-vial"></i> API Tester
+                        </a>
+                        <a class="nav-link" href="#" data-page="roles">
+                            <i class="fas fa-user-tag"></i> Roles
+                        </a>
+                        <a class="nav-link" href="#" data-page="permissions">
+                            <i class="fas fa-key"></i> Permissions
+                        </a>
+                        <a class="nav-link" href="#" data-page="groups">
+                            <i class="fas fa-users"></i> Groups
+                        </a>
+                        <a class="nav-link" href="#" data-page="users">
+                            <i class="fas fa-user"></i> Users
+                        </a>
+                        <a class="nav-link" href="#" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Main Content -->
+                <div class="col-md-10 main-content">
+                    <!-- User Info -->
+                    <div class="user-info" id="userInfo">
+                        <h5><i class="fas fa-user-circle"></i> Current User</h5>
+                        <div id="userDetails">Loading...</div>
+                        
+                        <!-- Test Error Buttons -->
+                        <div class="mt-3">
+                            <button class="btn btn-warning btn-sm" onclick="test401Error()">
+                                <i class="fas fa-exclamation-triangle"></i> Test 401 Error
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="test403Error()">
+                                <i class="fas fa-ban"></i> Test 403 Error
+                            </button>
+                            <small class="text-muted d-block">Test authentication and authorization errors</small>
+                        </div>
+                    </div>
+
+                    <!-- API Tester Page -->
+                    <div id="api-tester" class="page-section active">
+                        <h2><i class="fas fa-vial"></i> API Endpoint Tester</h2>
+                        <p class="text-muted">Test different API endpoints to see how RBAC controls access based on user roles and permissions. Each endpoint can return 200 OK (valid token + correct role), 401 Unauthorized (no/invalid token), or 403 Forbidden (valid token but insufficient role).</p>
+                        
+                        <div class="row">
+                            <!-- Endpoint 1: Public -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card api-test-card h-100">
+                                    <div class="card-header bg-success text-white">
+                                        <h5 class="mb-1"><i class="fas fa-globe"></i> Endpoint 1: Public Access</h5>
+                                        <div class="mt-2">
+                                            <span class="badge bg-light text-dark">Required Role: None (Public)</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted mb-3"><strong>Description:</strong> This is a public endpoint that requires no authentication. Anyone can access this endpoint without a token.</p>
+                                        <button class="btn btn-success w-100" onclick="callAPI('public')">
+                                            <i class="fas fa-play"></i> Call Endpoint
+                                        </button>
+                                        <div id="response-public" class="api-response mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Endpoint 2: User Basic -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card api-test-card h-100">
+                                    <div class="card-header bg-info text-white">
+                                        <h5 class="mb-1"><i class="fas fa-user"></i> Endpoint 2: Authenticated User</h5>
+                                        <div class="mt-2">
+                                            <span class="badge bg-light text-dark">Required Role: Any Authenticated User</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint requires a valid authentication token. Any logged-in user can access this endpoint regardless of their role.</p>
+                                        <button class="btn btn-info w-100" onclick="callAPI('user_basic')">
+                                            <i class="fas fa-play"></i> Call Endpoint
+                                        </button>
+                                        <div id="response-user_basic" class="api-response mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Endpoint 3: Admin Only -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card api-test-card h-100">
+                                    <div class="card-header bg-danger text-white">
+                                        <h5 class="mb-1"><i class="fas fa-user-shield"></i> Endpoint 3: Admin Only</h5>
+                                        <div class="mt-2">
+                                            <span class="badge bg-light text-dark">Required Role: admin</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint is restricted to users with the admin role only. Other roles will receive a 403 Forbidden response.</p>
+                                        <button class="btn btn-danger w-100" onclick="callAPI('admin_only')">
+                                            <i class="fas fa-play"></i> Call Endpoint
+                                        </button>
+                                        <div id="response-admin_only" class="api-response mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Endpoint 4: Clinician Only -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card api-test-card h-100">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-1"><i class="fas fa-user-md"></i> Endpoint 4: Clinician Only</h5>
+                                        <div class="mt-2">
+                                            <span class="badge bg-light text-dark">Required Role: clinician</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint is restricted to users with the clinician role. Admin role also has access. Other roles will receive 403 Forbidden.</p>
+                                        <button class="btn btn-primary w-100" onclick="callAPI('clinician_only')">
+                                            <i class="fas fa-play"></i> Call Endpoint
+                                        </button>
+                                        <div id="response-clinician_only" class="api-response mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Endpoint 5: Receptionist Only -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card api-test-card h-100">
+                                    <div class="card-header bg-warning text-dark">
+                                        <h5 class="mb-1"><i class="fas fa-clipboard-list"></i> Endpoint 5: Receptionist Only</h5>
+                                        <div class="mt-2">
+                                            <span class="badge bg-dark text-white">Required Role: receptionist</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint is restricted to users with the receptionist role. Admin role also has access. Other roles will receive 403 Forbidden.</p>
+                                        <button class="btn btn-warning w-100" onclick="callAPI('receptionist_only')">
+                                            <i class="fas fa-play"></i> Call Endpoint
+                                        </button>
+                                        <div id="response-receptionist_only" class="api-response mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Endpoint 6: Nurse Only -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card api-test-card h-100">
+                                    <div class="card-header bg-secondary text-white">
+                                        <h5 class="mb-1"><i class="fas fa-user-nurse"></i> Endpoint 6: Nurse Only</h5>
+                                        <div class="mt-2">
+                                            <span class="badge bg-light text-dark">Required Role: nurse</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint is restricted to users with the nurse role. Admin role also has access. Other roles will receive 403 Forbidden.</p>
+                                        <button class="btn btn-secondary w-100" onclick="callAPI('nurse_only')">
+                                            <i class="fas fa-play"></i> Call Endpoint
+                                        </button>
+                                        <div id="response-nurse_only" class="api-response mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Endpoint 7: Multi-Role -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card api-test-card h-100">
+                                    <div class="card-header bg-dark text-white">
+                                        <h5 class="mb-1"><i class="fas fa-users-medical"></i> Endpoint 7: Multi-Role Access</h5>
+                                        <div class="mt-2">
+                                            <span class="badge bg-light text-dark">Required Role: admin, clinician, or nurse</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted mb-3"><strong>Description:</strong> This endpoint allows access to multiple roles: admin, clinician, or nurse. Users with other roles will receive 403 Forbidden.</p>
+                                        <button class="btn btn-dark w-100" onclick="callAPI('multi_role')">
+                                            <i class="fas fa-play"></i> Call Endpoint
+                                        </button>
+                                        <div id="response-multi_role" class="api-response mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Roles Page (Page 2) -->
+                    <div id="roles" class="page-section">
+                        <h2><i class="fas fa-user-tag"></i> Page 2 — Roles</h2>
+                        <p class="text-muted mb-4">Table listing all roles in the system.</p>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rolesTableBody">
+                                    <tr><td colspan="3" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Permissions Page (Page 3) -->
+                    <div id="permissions" class="page-section">
+                        <h2><i class="fas fa-key"></i> Page 3 — Permissions</h2>
+                        <p class="text-muted mb-4">Table listing all permissions in the system.</p>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="permissionsTableBody">
+                                    <tr><td colspan="3" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Groups Page (Page 4) -->
+                    <div id="groups" class="page-section">
+                        <h2><i class="fas fa-users"></i> Page 4 — Groups</h2>
+                        <p class="text-muted mb-4">List of groups. Each group can be assigned multiple permissions. Groups act as a permission bundle.</p>
+                        <div id="groupsList">
+                            <div class="text-center">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- Users Page (Page 5) -->
+                    <div id="users" class="page-section">
+                        <h2><i class="fas fa-user"></i> Page 5 — Users</h2>
+                        <p class="text-muted mb-4">List of users. Click on a user to edit their roles, permissions, and groups.</p>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Primary Role</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Edit Modal -->
+    <div class="modal fade" id="userEditModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User Permissions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="userEditContent">Loading...</div>
+                </div>
+                <div class="modal-footer">
+                    <small class="text-muted me-auto">Changes are saved automatically when toggles are switched.</small>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

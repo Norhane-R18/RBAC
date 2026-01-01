@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - RBAC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <h2>RBAC</h2>
+        <p class="role">
+            Role: <span id="currentRole"></span>
+        </p>
+
+        <button onclick="viewProfile()">Profile</button>
+        <button onclick="adminPanel()">Admin Panel</button>
+        <button onclick="logout()">Logout</button>
+    </aside>
+
+    <main class="content">
+        <h1>Dashboard</h1>
+
+        <div id="messageBox" class="info-box">
+            Select an action from the menu.
+        </div>
+    </main>
+
+</div>
+
+<script src="dashboard.js"></script>
+</body>
+</html>

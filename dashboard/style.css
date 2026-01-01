@@ -1,0 +1,60 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* LOGIN */
+.login-page {
+    background: #f3f4f6;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    background: white;
+    padding: 30px;
+    width: 300px;
+    border-radius: 6px;
+}
+
+.login-box input,
+.login-box select {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 8px;
+}
+
+/* DASHBOARD */
+.layout {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 220px;
+    background: #111827;
+    color: white;
+    padding: 20px;
+}
+
+.sidebar button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #1f2937;
+    color: white;
+    border: none;
+}
+
+.content {
+    flex: 1;
+    padding: 30px;
+}
+
+.info-box {
+    background: #e5e7eb;
+    padding: 20px;
+    border-radius: 5px;
+}

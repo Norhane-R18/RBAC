@@ -17,6 +17,9 @@ function getJsonInput() {
     $decoded = json_decode($input, true) ?: [];
     error_log("Decoded input: " . json_encode($decoded));
     return $decoded;
+
+
+    
 }
 
 // Validate required fields in input

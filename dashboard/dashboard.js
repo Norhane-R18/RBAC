@@ -192,6 +192,32 @@ function callAPI(endpoint) {
     });
 }
 
+// Function to call API without authentication token
+function callAPIWithoutAuth(endpoint) {
+    console.log('Calling without auth:', endpoint);
+    const url = `../api/demo_endpoints.php?endpoint=${endpoint}&no_token=true`;
+    console.log('URL:', url);
+    
+    $.ajax({
+        url: url,
+        method: 'GET',
+        // Explicitly remove any authentication
+        beforeSend: function(xhr) {
+            console.log('Removing Authorization header');
+            xhr.setRequestHeader('Authorization', '');
+        },
+        success: function(response) {
+            console.log('Success response:', response);
+            displayAPIResponse(endpoint, response, 200);
+        },
+        error: function(xhr) {
+            console.log('Error response:', xhr.status, xhr.responseJSON);
+            const response = xhr.responseJSON || { error: 'Request failed' };
+            displayAPIResponse(endpoint, response, xhr.status);
+        }
+    });
+}
+
 function displayAPIResponse(endpoint, response, status) {
     const responseDiv = $(`#response-${endpoint}`);
     const statusClass = getStatusClass(status);
